@@ -450,7 +450,7 @@ const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
   }
 
 
-  function addCustomer() {
+  async function addCustomer() {
 
     const name =
       document.getElementById("customerName").value.trim();
@@ -467,14 +467,28 @@ const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
       return;
     }
-
-    customers.push({
+const { data, error } = await supabase
+  .from("customers")
+  .insert([
+    {
       name: name,
       phone: phone,
-      id: id
-    });
+      customer_id: id
+    }
+  ]);
 
-    displayCustomers();
+if (error) {
+  alert("Imeshindikana kuhifadhi customer: " + error.message);
+  return;
+}
+
+customers.push({
+  name: name,
+  phone: phone,
+  id: id
+});
+
+displayCustomers();
 
     document.getElementById("customerName").value = "";
     document.getElementById("customerPhone").value = "";
@@ -519,7 +533,21 @@ const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
     });
 
   }
+async function loadCustomers() {
 
+    const { data, error } = await supabase
+        .from("customers")
+        .select("*");
+
+    if (error) {
+        console.error("Imeshindikana kupakia customers:", error);
+        return;
+    }
+
+    customers = data || [];
+
+    displayCustomers();
+}
 
   function makePayment() {
 
@@ -569,7 +597,7 @@ const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
         savedUser;
 
     }
-
+loadCustomers();
   };
 
 </script>
